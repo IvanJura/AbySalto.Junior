@@ -1,4 +1,3 @@
-
 using AbySalto.Junior.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -11,6 +10,9 @@ namespace AbySalto.Junior
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddScoped<IApplicationDbContext>(provider =>
+            provider.GetRequiredService<ApplicationDbContext>());
+                        
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
 
@@ -20,10 +22,16 @@ namespace AbySalto.Junior
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Restaurant", Version = "v1" });
             });
 
-            builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
+            builder.Services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                db.Database.Migrate();
+            }
 
             if (app.Environment.IsDevelopment())
             {
@@ -38,7 +46,6 @@ namespace AbySalto.Junior
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
-
 
             app.MapControllers();
             app.Run();
