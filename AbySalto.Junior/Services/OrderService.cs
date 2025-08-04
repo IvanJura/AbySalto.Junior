@@ -31,6 +31,7 @@ namespace AbySalto.Junior.Services
 
             _db.Orders.Add(order);
             await _db.SaveChangesAsync();
+
             return order;
         }
 
@@ -49,8 +50,10 @@ namespace AbySalto.Junior.Services
         public async Task UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus)
         {
             var order = await _db.Orders.FindAsync(orderId);
+
             if (order is null) throw new KeyNotFoundException("Order not found");
             order.Status = newStatus;
+
             await _db.SaveChangesAsync();
         }
     }
