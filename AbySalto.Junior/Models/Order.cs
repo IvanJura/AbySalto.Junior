@@ -16,8 +16,7 @@ namespace AbySalto.Junior.Models
         public string Currency { get; set; }
         
         public List<OrderItem> Items { get; set; } = new();
-
-        
+                
         public decimal TotalAmount => Items.Sum(i => i.Price * i.Quantity);
     }
 }
